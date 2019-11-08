@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="{{ static_url('danmaku.browser.js') }}"></script>
+    <div
+      id="danmu"
+      style="width:100vw; height:400px;background-color: grey;;"
+    ></div>
+        用户名: {{ current_user }}
+    <div id="app">
+      <% message %>
+      <br />
+      <br />
+      <!-- <div v-for="(m,idx) in messages" :key="idx"> -->
+      <!-- <% m %> -->
+      <!-- </div> -->
+
+      <input v-model="message" />
+      <br />
+      <button
+        type="submit"
+        @click="submit"
+        style="width:100px;height:50px;"
+      >发送弹幕</button>
+    </div>
+
+    <script>
+      // 传入更详细的配置，这里增加了「弹幕最大数」与「弹幕轨道数」的参数
+      var player = AwesomeDanmaku.getPlayer({
+        el: "#danmu",
+        maxCount: 70,
+        trackCount: 6
+      });
+      player.play();
+
+      var app = new Vue({
+        el: "#app",
+        delimiters: ["<%", "%>"],
+        data: {
+          message: "猜猜我是谁",
+          messages: [],
+          ws: null
+        },
+        methods: {
+          submit() {
+            if (this.ws) {
+              ws.send(this.message);
+              player.insert(this.message)
+            }
+          }
+        },
+        mounted() {}
+      });
+
+      var ws = new WebSocket("ws://localhost:8888/websocket");
+      app.ws = ws;
+      ws.onopen = function() {
+      };
+      ws.onmessage = function(evt) {
+        app.messages.push(evt.data);
+        player.insert(evt.data);
+      };
+    </script>
+  </body>
+</html>
