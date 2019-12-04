@@ -13,7 +13,7 @@
       id="danmu"
       style="width:100vw; height:400px;background-color: grey;;"
     ></div>
-        用户名: {{ current_user }}
+    用户名: {{ current_user }}
     <div id="app">
       <% message %>
       <br />
@@ -24,19 +24,17 @@
 
       <input v-model="message" />
       <br />
-      <button
-        type="submit"
-        @click="submit"
-        style="width:100px;height:50px;"
-      >发送弹幕</button>
+      <button type="submit" @click="submit" style="width:100px;height:50px;">
+        发送弹幕
+      </button>
     </div>
 
     <script>
       // 传入更详细的配置，这里增加了「弹幕最大数」与「弹幕轨道数」的参数
       var player = AwesomeDanmaku.getPlayer({
         el: "#danmu",
-        maxCount: 70,
-        trackCount: 6
+        maxCount: 150,
+        trackCount: 8
       });
       player.play();
 
@@ -45,14 +43,22 @@
         delimiters: ["<%", "%>"],
         data: {
           message: "猜猜我是谁",
-          messages: [],
+          // messages: [],
           ws: null
         },
         methods: {
           submit() {
             if (this.ws) {
-              ws.send(this.message);
-              player.insert(this.message)
+              data = {
+                type: "danmaku",
+                data: {
+                  text: this.message
+                }
+              };
+
+              data = JSON.stringify(data);
+              ws.send(data);
+              player.insert(this.message);
             }
           }
         },
@@ -61,11 +67,13 @@
 
       var ws = new WebSocket("ws://localhost:8888/websocket");
       app.ws = ws;
-      ws.onopen = function() {
-      };
+      ws.onopen = function() {};
       ws.onmessage = function(evt) {
-        app.messages.push(evt.data);
-        player.insert(evt.data);
+        data = JSON.parse(evt.data);
+        if (data.type === "danmaku") {
+          // app.messages.push(data.data);
+          player.insert(data.data);
+        }
       };
     </script>
   </body>

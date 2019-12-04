@@ -1,3 +1,4 @@
+"""喜欢发弹幕的人"""
 import websocket
 import time
 import threading
@@ -8,9 +9,10 @@ import logging
 
 WS_URL = "ws://localhost:8888/websocket"
 
-PROCESS_NUM = 4
-THREAD_NUM = 20
-
+PROCESS_NUM = 1
+THREAD_NUM = 5
+INTERVAL = 1
+CONNECTION_DELAY = 1
 
 def on_message(ws, message):
     # logging.info(message)
@@ -30,7 +32,7 @@ def on_close(ws):
 def on_open(ws):
     def send_thread():
         while True:
-            time.sleep(5)
+            time.sleep(INTERVAL)
             ws.send(f"{int(threading.get_ident())} ping")
 
     t = threading.Thread(target=send_thread)
@@ -38,7 +40,7 @@ def on_open(ws):
 
 
 def on_start(num):
-    # time.sleep(num % 20)
+    time.sleep(num % CONNECTION_DELAY)
     websocket.enableTrace(False)
     ws = websocket.WebSocketApp(
         WS_URL, on_message=on_message, on_error=on_error, on_close=on_close, on_open=on_open,)
