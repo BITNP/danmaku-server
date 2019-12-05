@@ -1,20 +1,17 @@
 version: "3"
 services: 
     server:
-        build: .
+        image: docker.bitnp.net/bitnp/live/danmu/server:master
         restart: always
         ports:
             - 8888:8888
 
     fluentd:
-        build: fluentd/
+        image: docker.bitnp.net/bitnp/live/danmu/fluentd:master
         restart: always
-        ports:
-            - 24224:24224
-            - 24224:24224/udp
 
     mongo:
-        image: mongo
+        image: docker.bitnp.net/bitnp/live/danmu/mongo:master
         restart: always
         environment: 
             MONGO_INITDB_ROOT_USERNAME: root
@@ -22,7 +19,7 @@ services:
             MONGO_INITDB_DATABASE: fluentd
 
     mongo-express:
-        image: mongo-express
+        image: docker.bitnp.net/bitnp/live/danmu/mongo-express:master
         restart: always
         ports:
             - 8081:8081
