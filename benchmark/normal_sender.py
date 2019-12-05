@@ -11,8 +11,8 @@ from random import randint
 WS_URL = "ws://localhost:8888/websocket"
 
 PROCESS_NUM = 1
-THREAD_NUM = 5
-INTERVAL = 6
+THREAD_NUM = 20
+INTERVAL = 10
 CONNECTION_DELAY = 1
 
 def on_message(ws, message):

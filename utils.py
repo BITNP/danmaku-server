@@ -1,6 +1,5 @@
 from time import time, sleep
 from pprint import pformat
-import pytest
 import re
 
 # TODO 接入
@@ -23,14 +22,14 @@ class BlackList:
     def ip(self):
         return self._ip
 
-    def add_ip(self, ip: str, delay: int = 10):
+    def add_ip(self, ip: str, delay: int = 300):
         self._ip[ip] = time() + delay
 
     @property
     def message(self):
         return {'in': self._message_in, 'regex': self._message_regex, 'all': self._message_all}
 
-    def add_message(self, message: str, _type: str = 'all', delay: int = 30) -> bool:
+    def add_message(self, message: str, _type: str = 'all', delay: int = 300) -> bool:
         """add a illegal message to blacklist, return if it's successful added."""
         if _type == 'all':
             self._message_all[message] = time() + delay
