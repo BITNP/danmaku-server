@@ -156,15 +156,15 @@ class EchoWebSocket(websocket.WebSocketHandler):
         return (True, '')
 
     @classmethod
-    def statistics(cls):
+    def statistics(cls)->list:
         '''return statistics information.'''
-        rst = {}
+        rst = [] 
         for c in cls.clients:
-            rst[str(c)] = {
+            rst.append({
                 'ip': c.request.remote_ip,
                 'send_all_count': c.send_to_all_count,
                 'error_count': c.error_count
-            }
+            })
         return rst
 
     def open(self):
@@ -202,11 +202,11 @@ class EchoWebSocket(websocket.WebSocketHandler):
                 # 如果格式错误，那么直接丢弃或者断开连接
                 self.warning(
                     "Get message type danmaku, but it's not a valid danmaku type.")
-                print(message['data'])
                 self.close()
                 return
         except Exception as e:
             self.warning(f"Check danmaku type encounter error:[{e}].")
+            self.close()
             return
 
     def on_close(self):
@@ -224,8 +224,23 @@ class AdminRequestHandler(web.RequestHandler):
             self.finish()
 
     def get(self):
-        self.write({'message': EchoWebSocket.statistics()})
-
+        _sort_by = self.get_argument('sort_by','default')
+        _n = int(self.get_argument('n',0))
+        _reverse = True if self.get_argument('reverse', False) else False
+        _rst = EchoWebSocket.statistics()
+        if _sort_by == 'default':
+            pass
+        elif _sort_by == 'error':
+            _rst.sort(key=lambda x:x['error_count'],reverse=_reverse)
+        elif _sort_by == 'send':
+            _rst.sort(key=lambda x:x['send_all_count'], reverse=_reverse)
+        else:
+            self.set_status(500)
+            self.finish()
+        if _n <= 0:
+            self.write({'connections':_rst})
+        else:
+            self.write({'connections':_rst[0:min(len(_rst),_n)]})
 
 class AdminIPRequestHandler(AdminRequestHandler):
 

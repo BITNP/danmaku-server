@@ -5,14 +5,13 @@ import threading
 import multiprocessing
 import json
 import logging
-from random import randint
 
 
 WS_URL = "ws://localhost:8888/websocket"
 
 PROCESS_NUM = 1
 THREAD_NUM = 5
-INTERVAL = 6
+INTERVAL = 1
 CONNECTION_DELAY = 1
 
 def on_message(ws, message):
@@ -33,8 +32,8 @@ def on_close(ws):
 def on_open(ws):
     def send_thread():
         while True:
-            time.sleep(randint(1,INTERVAL))
-            ws.send('{"type":"danmaku","data":{"text":"hello world","color":"#fff","type":0}}')
+            time.sleep(INTERVAL)
+            ws.send('{"hello":"world"}')
 
     t = threading.Thread(target=send_thread)
     t.start()
