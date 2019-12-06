@@ -183,8 +183,11 @@ class EchoWebSocket(websocket.WebSocketHandler):
         '''return statistics information.'''
         rst = []
         for c in cls.clients:
+            remote_ip = c.request.headers.get("X-Real-IP") or \
+                        c.request.headers.get("X-Forwarded-For") or \
+                        c.request.remote_ip
             rst.append({
-                'ip': c.request.remote_ip,
+                'ip': remote_ip,
                 'send_all_count': c.send_to_all_count,
                 'error_count': c.error_count
             })
@@ -247,7 +250,10 @@ class EchoWebSocket(websocket.WebSocketHandler):
         # self.send_to_all(repr(id(self))+" leave room.")
 
     def __basic_log_info(self, _type, content) -> dict:
-        return {'ip': self.request.remote_ip, 'count': len(EchoWebSocket.clients),
+        remote_ip = self.request.headers.get("X-Real-IP") or \
+            self.request.headers.get("X-Forwarded-For") or \
+            self.request.remote_ip
+        return {'ip': remote_ip, 'count': len(EchoWebSocket.clients),
                 'id': id(self), 'type': _type, 'content': content, 'error_count': self.error_count,
                 'send_count': self.send_to_all_count}
 

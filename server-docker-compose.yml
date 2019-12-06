@@ -5,10 +5,14 @@ services:
         restart: always
         ports:
             - 8888:8888
+        environment: 
+            TZ: Asia/Shanghai
 
     fluentd:
         image: docker.bitnp.net/bitnp/live/danmu/fluentd:master
         restart: always
+        environment: 
+            TZ: Asia/Shanghai
 
     mongo:
         image: docker.bitnp.net/bitnp/live/danmu/mongo:master
@@ -17,6 +21,7 @@ services:
             MONGO_INITDB_ROOT_USERNAME: root
             MONGO_INITDB_ROOT_PASSWORD: example
             MONGO_INITDB_DATABASE: fluentd
+            TZ: Asia/Shanghai
 
     mongo-express:
         image: docker.bitnp.net/bitnp/live/danmu/mongo-express:master
@@ -26,3 +31,4 @@ services:
         environment: 
             ME_CONFIG_MONGODB_ADMINUSERNAME: root
             ME_CONFIG_MONGODB_ADMINPASSWORD: example
+            TZ: Asia/Shanghai
