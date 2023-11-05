@@ -86,6 +86,14 @@ def valid_danmaku_type(danmaku: dict) -> bool:
     return True if len(danmaku) <= 3 and len(str(danmaku)) < 90 and 'text' in danmaku else False
 
 
+def validate_danmaku_no_restriction(danmaku: dict) -> bool:
+    if 'token' in danmaku and danmaku['token'] == 'oh-my-fdl':
+        danmaku.pop('token')
+        return valid_danmaku_type(danmaku)
+    else:
+        return False
+
+
 class EchoWebSocket(websocket.WebSocketHandler):
     # 使用 map 记录，真实值为 ip
     clients = set()
@@ -178,6 +186,22 @@ class EchoWebSocket(websocket.WebSocketHandler):
         self.send_to_all_count += 1
         return (True, '')
 
+    def send_to_all_no_restriction(self, message: dict):
+        l.info(self.__basic_log_info("send2all_no_restriction", message))
+        payload: dict = {
+            'type': 'danmaku',
+            'data': message
+        }
+        payload: str = json.dumps(payload)
+        for c in (c for c in EchoWebSocket.clients if id(c) != id(self)):
+            try:
+                c.write_message(payload)
+            except:
+                c.close()
+        self.send_to_all_count += 1
+        return (True, '')
+
+
     @classmethod
     def statistics(cls) -> list:
         '''return statistics information.'''
@@ -226,6 +250,8 @@ class EchoWebSocket(websocket.WebSocketHandler):
         try:
             if message['type'] == 'danmaku' and valid_danmaku_type(message['data']):
                 self.send_to_all(message['data'])
+            elif message['type'] == 'danmaku_no_restriction' and validate_danmaku_no_restriction(message['data']):
+                self.send_to_all_no_restriction(message['data'])
             else:
                 # 如果格式错误，那么直接丢弃或者断开连接
                 # self.warning(

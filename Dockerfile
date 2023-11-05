@@ -1,8 +1,8 @@
-FROM python:3.8
+FROM python:3-slim
 
 EXPOSE 8888
 
-RUN mkdir -p /usr/src/ap7p
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY requirements.txt /usr/src/app/
